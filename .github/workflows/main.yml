@@ -1,0 +1,40 @@
+name: Deploy Static Web Game to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+# 設定 GITHUB_TOKEN 的權限以允許發布至 GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 限制同一時間只能有一個部署任務進行
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 打包根目錄下的 index.html, game.js, style.css 等檔案
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
