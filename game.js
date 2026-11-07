@@ -14,10 +14,18 @@ const shareBtn = document.getElementById('shareBtn');
 const skillButtons = [...document.querySelectorAll('.skill-btn')];
 
 const state = {
-  roundTime: 35, timeLeft: 35, gameOver: false,
+  roundTime: 35,
+  timeLeft: 35,
+  gameOver: false,
   score: { shengWang: 0, festival: 0, police: 0, stigma: 0 },
-  conflicts: [], effects: [], smoke: [], player: null, spawnTimer: 1.5,
-  lastMessage: '廟會秩序正在維持…', soundEnabled: true, lastTime: 0,
+  conflicts: [],
+  effects: [],
+  smoke: [],
+  player: null,
+  spawnTimer: 1.5,
+  lastMessage: '廟會秩序正在維持…',
+  soundEnabled: true,
+  lastTime: 0,
   skillCooldowns: { Q: 0, W: 0, E: 0, R: 0 },
 };
 
@@ -31,8 +39,6 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color('#24242b');
 scene.fog = new THREE.Fog('#24242b', 22, 48);
 const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-camera.position.set(13, 14, 15);
-camera.lookAt(0, 0, 0);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.shadowMap.enabled = true;
@@ -41,18 +47,21 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
 host.appendChild(renderer.domElement);
 
+const cameraRig = { yaw: -0.9, pitch: 0.8, distance: 19, target: new THREE.Vector3(0, 1.8, 0) };
+function updateCamera() {
+  const x = cameraRig.target.x + Math.cos(cameraRig.yaw) * Math.cos(cameraRig.pitch) * cameraRig.distance;
+  const y = cameraRig.target.y + Math.sin(cameraRig.pitch) * cameraRig.distance;
+  const z = cameraRig.target.z + Math.sin(cameraRig.yaw) * Math.cos(cameraRig.pitch) * cameraRig.distance;
+  camera.position.set(x, y, z);
+  camera.lookAt(cameraRig.target);
+}
+updateCamera();
+
 scene.add(new THREE.HemisphereLight(0xffe6bd, 0x292b38, 2.0));
 const moonLight = new THREE.DirectionalLight(0xffd69a, 3.2);
-moonLight.position.set(-7, 13, 8);
-moonLight.castShadow = true;
-moonLight.shadow.mapSize.set(1024, 1024);
-scene.add(moonLight);
-const redGlow = new THREE.PointLight(0xff4b2b, 17, 16);
-redGlow.position.set(-4, 3, -3);
-scene.add(redGlow);
-const lanternGlow = new THREE.PointLight(0xffa53c, 12, 14);
-lanternGlow.position.set(4, 3, -3);
-scene.add(lanternGlow);
+moonLight.position.set(-7, 13, 8); moonLight.castShadow = true; moonLight.shadow.mapSize.set(1024, 1024); scene.add(moonLight);
+const redGlow = new THREE.PointLight(0xff4b2b, 17, 16); redGlow.position.set(-4, 3, -3); scene.add(redGlow);
+const lanternGlow = new THREE.PointLight(0xffa53c, 12, 14); lanternGlow.position.set(4, 3, -3); scene.add(lanternGlow);
 
 const mat = (color, roughness = 0.82, metalness = 0) => new THREE.MeshStandardMaterial({ color, roughness, metalness });
 const materials = {
@@ -63,18 +72,13 @@ const materials = {
 function mesh(geometry, material, parent = scene, position = [0, 0, 0]) {
   const object = new THREE.Mesh(geometry, material);
   object.position.set(...position);
-  object.castShadow = true;
-  object.receiveShadow = true;
-  parent.add(object);
-  return object;
+  object.castShadow = true; object.receiveShadow = true; parent.add(object); return object;
 }
 
 function makeLabel(text, color = '#fff2c7') {
-  const c = document.createElement('canvas');
-  c.width = 256; c.height = 80;
+  const c = document.createElement('canvas'); c.width = 256; c.height = 80;
   const g = c.getContext('2d');
-  g.fillStyle = 'rgba(20,12,8,.78)';
-  g.beginPath(); g.roundRect(8, 8, 240, 64, 18); g.fill();
+  g.fillStyle = 'rgba(20,12,8,.78)'; g.beginPath(); g.roundRect(8, 8, 240, 64, 18); g.fill();
   g.strokeStyle = 'rgba(245,212,119,.7)'; g.lineWidth = 3; g.stroke();
   g.fillStyle = color; g.font = 'bold 30px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 128, 40);
   const texture = new THREE.CanvasTexture(c);
@@ -84,32 +88,25 @@ function makeLabel(text, color = '#fff2c7') {
 }
 
 function createTemple() {
-  const base = mesh(new THREE.BoxGeometry(8, 0.45, 5), materials.stone, scene, [0, 0.22, -5.7]);
-  const hall = mesh(new THREE.BoxGeometry(6.7, 2.3, 3.7), materials.wood, scene, [0, 1.45, -5.7]);
-  const front = mesh(new THREE.BoxGeometry(6.9, 0.24, 0.25), materials.gold, scene, [0, 2.35, -3.8]);
-  // Layered, low-poly hip roof and upturned corner ornaments.
+  mesh(new THREE.BoxGeometry(8, 0.45, 5), materials.stone, scene, [0, 0.22, -5.7]);
+  mesh(new THREE.BoxGeometry(6.7, 2.3, 3.7), materials.wood, scene, [0, 1.45, -5.7]);
+  mesh(new THREE.BoxGeometry(6.9, 0.24, 0.25), materials.gold, scene, [0, 2.35, -3.8]);
   const roof = mesh(new THREE.CylinderGeometry(0.5, 1, 1, 4, 1), materials.roof, scene, [0, 3.05, -5.7]);
   roof.rotation.y = Math.PI / 4; roof.scale.set(5.2, 1.25, 3.5);
-  const ridge = mesh(new THREE.BoxGeometry(5.2, 0.2, 0.24), materials.gold, scene, [0, 3.72, -5.7]);
-  for (const x of [-3.1, 3.1]) {
-    const pillar = mesh(new THREE.CylinderGeometry(0.12, 0.16, 2.4, 8), materials.red, scene, [x, 1.35, -3.82]);
-    pillar.rotation.z = Math.PI;
-  }
+  mesh(new THREE.BoxGeometry(5.2, 0.2, 0.24), materials.gold, scene, [0, 3.72, -5.7]);
+  for (const x of [-3.1, 3.1]) { const pillar = mesh(new THREE.CylinderGeometry(0.12, 0.16, 2.4, 8), materials.red, scene, [x, 1.35, -3.82]); pillar.rotation.z = Math.PI; }
   const door = mesh(new THREE.BoxGeometry(1.5, 1.7, 0.16), materials.dark, scene, [0, 1.25, -3.78]);
   door.material = new THREE.MeshStandardMaterial({ color: '#311c17', roughness: 0.9 });
-  // Incense burner and incense sticks.
   mesh(new THREE.CylinderGeometry(0.72, 0.9, 0.7, 10), materials.gold, scene, [0, 0.65, -1.6]);
   mesh(new THREE.ConeGeometry(0.64, 0.32, 10), materials.red, scene, [0, 1.15, -1.6]);
   for (let i = 0; i < 3; i++) mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.1, 5), materials.wood, scene, [(i - 1) * 0.18, 1.75, -1.6]);
-  // Stone lions at the temple entrance.
   for (const x of [-4.6, 4.6]) {
-    const lion = new THREE.Group(); scene.add(lion); lion.position.set(x, 0.35, -3.3);
+    const lion = new THREE.Group(); lion.position.set(x, 0.35, -3.3); scene.add(lion);
     mesh(new THREE.BoxGeometry(0.9, 0.75, 0.8), materials.stone, lion, [0, 0.4, 0]);
     mesh(new THREE.SphereGeometry(0.36, 12, 10), materials.stone, lion, [0, 0.95, 0]);
     mesh(new THREE.SphereGeometry(0.12, 8, 8), materials.gold, lion, [0, 0.98, 0.32]);
     mesh(new THREE.BoxGeometry(1.12, 0.2, 1), materials.stone, lion, [0, 0.1, 0]);
   }
-  // Lantern strings, poles and warm light.
   for (const z of [-7.3, -4.4, -1.4, 1.8]) {
     for (const x of [-6.4, 6.4]) {
       mesh(new THREE.CylinderGeometry(0.07, 0.1, 4.1, 8), materials.wood, scene, [x, 2.05, z]);
@@ -118,17 +115,12 @@ function createTemple() {
       mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.08, 12), materials.gold, scene, [x, 3.53, z]);
     }
   }
-  return { base, hall, front, ridge, door };
 }
 
 mesh(new THREE.PlaneGeometry(38, 38), materials.ground, scene, [0, -0.08, 0]).rotation.x = -Math.PI / 2;
-const plaza = mesh(new THREE.BoxGeometry(20, 0.18, 18), mat('#716858'), scene, [0, 0.02, 0]);
-plaza.receiveShadow = true;
-const grid = new THREE.GridHelper(18, 18, '#b39b6e', '#887d68');
-grid.position.y = 0.13; grid.material.transparent = true; grid.material.opacity = 0.23; scene.add(grid);
+const plaza = mesh(new THREE.BoxGeometry(20, 0.18, 18), mat('#716858'), scene, [0, 0.02, 0]); plaza.receiveShadow = true;
+const grid = new THREE.GridHelper(18, 18, '#b39b6e', '#887d68'); grid.position.y = 0.13; grid.material.transparent = true; grid.material.opacity = 0.23; scene.add(grid);
 createTemple();
-
-// Parade path edging and market stalls.
 for (const x of [-9.2, 9.2]) {
   for (let z = -5; z <= 6; z += 2.5) {
     mesh(new THREE.BoxGeometry(1.1, 1.2, 1.1), materials.wood, scene, [x, 0.6, z]);
@@ -149,15 +141,14 @@ function createFigure(color, x, z, parent, scale = 1) {
 
 function createPlayer() {
   const group = new THREE.Group(); scene.add(group);
-  const body = mesh(new THREE.CylinderGeometry(0.28, 0.36, 1.05, 8), materials.blue, group, [0, 0.72, 0]);
+  mesh(new THREE.CylinderGeometry(0.28, 0.36, 1.05, 8), materials.blue, group, [0, 0.72, 0]);
   mesh(new THREE.SphereGeometry(0.25, 12, 10), materials.cream, group, [0, 1.42, 0]);
   const headpiece = mesh(new THREE.ConeGeometry(0.32, 0.5, 4), materials.gold, group, [0, 1.8, 0]);
   headpiece.rotation.y = Math.PI / 4;
   mesh(new THREE.CylinderGeometry(0.035, 0.05, 1.6, 6), materials.gold, group, [0.42, 1.08, 0]);
-  const trident = new THREE.Group(); group.add(trident); trident.position.set(0.42, 1.84, 0);
-  for (const x of [-0.16, 0, 0.16]) mesh(new THREE.ConeGeometry(0.065, 0.32, 5), materials.gold, trident, [x, 0.84 + (x === 0 ? 0.14 : 0), 0]);
+  const tridentGroup = new THREE.Group(); group.add(tridentGroup); tridentGroup.position.set(0.42, 1.84, 0);
+  for (const x of [-0.16, 0, 0.16]) mesh(new THREE.ConeGeometry(0.065, 0.32, 5), materials.gold, tridentGroup, [x, 0.84 + (x === 0 ? 0.14 : 0), 0]);
   const label = makeLabel('執事阿文', '#b9f3ff'); label.position.set(0, 2.45, 0); group.add(label);
-  group.userData.body = body;
   return group;
 }
 state.player = createPlayer();
@@ -192,11 +183,10 @@ function resize() {
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
 }
-new ResizeObserver(resize).observe(host);
+const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(host);
 resize();
 
-let audioCtx = null;
-let ambientTimer = null;
+let audioCtx = null; let ambientTimer = null;
 function ensureAudio() {
   if (!state.soundEnabled) return null;
   if (!audioCtx) {
@@ -292,7 +282,7 @@ function resetGame() {
   ensureAudio();
   for (const item of state.conflicts) scene.remove(item.root);
   for (const item of state.effects) scene.remove(item.object);
-  state.conflicts.length = 0; state.effects.length = 0;
+  state.conflicts.length = 0; state.effects.length = 0; state.smoke.forEach(p => scene.remove(p.object)); state.smoke.length = 0;
   state.timeLeft = state.roundTime; state.gameOver = false; state.score = { shengWang: 0, festival: 0, police: 0, stigma: 0 };
   state.spawnTimer = 1.3; state.lastMessage = '廟會秩序正在維持…'; state.skillCooldowns = { Q: 0, W: 0, E: 0, R: 0 }; state.lastTime = 0;
   state.player.position.set(0, 0, 0); overlay.classList.add('hidden'); createConflict(); createConflict(); updateHud();
@@ -341,7 +331,6 @@ function update(dt) {
     }
     if (effect.life <= 0) { scene.remove(effect.object); state.effects.splice(i, 1); }
   }
-  // Gentle incense smoke particles rise from the burner.
   if (Math.random() < dt * 8) {
     const puff = new THREE.Mesh(new THREE.SphereGeometry(0.08 + Math.random() * 0.08, 7, 6), new THREE.MeshBasicMaterial({ color: '#d4c9bd', transparent: true, opacity: 0.18 }));
     puff.position.set((Math.random() - 0.5) * 0.5, 1.8, -1.6 + (Math.random() - 0.5) * 0.3); scene.add(puff); state.smoke.push({ object: puff, life: 2.1 });
@@ -355,14 +344,25 @@ function update(dt) {
   updateHud();
 }
 
+let isDragging = false; let lastPointer = null;
+host.addEventListener('pointerdown', (event) => { isDragging = true; lastPointer = { x: event.clientX, y: event.clientY }; host.setPointerCapture(event.pointerId); });
+host.addEventListener('pointermove', (event) => {
+  if (!isDragging || !lastPointer) return;
+  const dx = event.clientX - lastPointer.x; const dy = event.clientY - lastPointer.y; lastPointer = { x: event.clientX, y: event.clientY };
+  cameraRig.yaw -= dx * 0.0045; cameraRig.pitch = THREE.MathUtils.clamp(cameraRig.pitch - dy * 0.004, 0.25, 1.35);
+  updateCamera();
+});
+host.addEventListener('pointerup', () => { isDragging = false; lastPointer = null; });
+host.addEventListener('pointerleave', () => { isDragging = false; lastPointer = null; });
+host.addEventListener('wheel', (event) => { event.preventDefault(); cameraRig.distance = THREE.MathUtils.clamp(cameraRig.distance + event.deltaY * 0.01, 12, 28); updateCamera(); }, { passive: false });
+
 function loop(timestamp) {
   const dt = state.lastTime ? Math.min((timestamp - state.lastTime) / 1000, 0.04) : 0;
   state.lastTime = timestamp;
   update(dt);
   state.player.rotation.y = Math.sin(timestamp * 0.0012) * 0.08;
   redGlow.intensity = 14 + Math.sin(timestamp * 0.003) * 3;
-  renderer.render(scene, camera);
-  requestAnimationFrame(loop);
+  renderer.render(scene, camera); requestAnimationFrame(loop);
 }
 
 newGameBtn.addEventListener('click', resetGame);
@@ -378,5 +378,4 @@ document.addEventListener('keydown', event => {
   const key = event.key.toUpperCase();
   if (['Q', 'W', 'E', 'R'].includes(key)) { ensureAudio(); castSkill(key); }
 });
-setSound(true);
-resetGame();
+setSound(true); resetGame();
