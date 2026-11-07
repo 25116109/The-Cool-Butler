@@ -1,33 +1,34 @@
 # The Cool Butler
 
-A 3D browser mini-game inspired by Taiwanese temple procession and folk-culture crowd control.
+A 3D browser mini-game inspired by Taiwanese temple procession and folk culture. Play as temple steward A-Wen, calm the crowds, and keep the procession peaceful.
 
 ## Features
-- 3D festival scene built with Three.js
-- Four control skills: Q/W/E/R
-- Score system: Sheng-Wang, festival energy, police alert, stigma pressure
-- Procedural sound effects via Web Audio API
-- Takeaway share text for Threads
-- Orbit camera with drag to rotate and wheel to zoom
+- 3D temple plaza made with Three.js, lanterns, market stalls, stone lions, incense smoke and crowd NPCs
+- Animated steward and crowd scenes, skill effects, draggable orbit camera and wheel zoom
+- Three difficulty levels: Peaceful, Procession and Lively
+- Keyboard and mobile controls: WASD/arrow keys or virtual joystick; Q/W/E/R use the four talisman skills
+- Procedural festival-style rhythm, skill sounds and police siren with Web Audio API; sound can be toggled
+- Local top-five leaderboard and personal best stored in browser localStorage
+- Results screen with a copy-ready Threads share post
 
 ## Run locally
-1. Open the repository root in a local web server.
-2. Example:
+Serve the repository over HTTP (rather than opening the file directly):
 
 ```bash
-cd The-Cool-Butler
 python -m http.server 8000
 ```
 
-3. Open `http://localhost:8000` in your browser.
+Then visit `http://localhost:8000`. The page loads Three.js from jsDelivr, so an internet connection is needed for the 3D library.
 
 ## Controls
-- Q: 遞結緣水
-- W: 貼平安符
-- E: 吹號鎮喧
-- R: 劃界結界
-- Drag: rotate camera
-- Mouse wheel: zoom in/out
+- WASD / arrow keys: move the steward
+- Q: 遞結緣水 — cool down the nearest disturbance
+- W: 貼平安符 — reduce the most heated disturbance
+- E: 吹號鎮喧 — calm nearby disturbances
+- R: 劃界結界 — create a temporary calming barrier
+- Drag the scene: rotate the camera
+- Mouse wheel: zoom
+- On touch screens: virtual joystick to move, skill buttons to cast
 
-## Game objective
-Keep the temple procession calm and orderly. If police alert or stigma reaches 100, the event is interrupted.
+## Objective
+Keep police alert and stigma below 100 until the 35-second procession round ends. Choose a difficulty from the main menu. Results are saved locally in the current browser; they are not shared across devices.

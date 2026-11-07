@@ -1,45 +1,63 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#160f0b" />
-    <title>The Cool Butler｜廟會和平大使</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="page-shell">
-      <header class="topbar">
-        <div><div class="eyebrow">廟會維安執事 · 3D WebGL</div><h1>The Cool Butler</h1></div>
-        <div class="top-actions">
-          <button id="soundToggleBtn" class="secondary-btn" type="button" aria-pressed="true">🔊 音效開</button>
-          <button id="newGameBtn" class="primary-btn" type="button">重新開始</button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#160f0b" />
+  <title>The Cool Butler｜廟會和平大使</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div><div class="eyebrow">廟會維安執事 · 3D WebGL</div><h1>The Cool Butler</h1></div>
+      <div class="top-actions">
+        <button id="soundToggleBtn" class="secondary-btn" type="button" aria-pressed="true">🔊 音樂／音效</button>
+        <button id="menuBtn" class="secondary-btn" type="button">主選單</button>
+        <button id="newGameBtn" class="primary-btn" type="button">重新開始</button>
+      </div>
+    </header>
+    <main class="game-layout">
+      <section class="hud-panel" aria-label="遊戲狀態">
+        <div class="score-box"><span>聖望聲譽</span><strong id="shengWangValue">0</strong></div>
+        <div class="score-box warm"><span>歡慶熱鬧度</span><strong id="festivalValue">0</strong></div>
+        <div class="score-box danger"><span>警方警戒度</span><strong id="policeValue">0</strong></div>
+        <div class="score-box bad"><span>民俗污名化</span><strong id="stigmaValue">0</strong></div>
+        <div class="timer-panel"><div class="label-row"><span>遶境倒數</span><strong id="timerValue">35.0s</strong></div><div class="progress-bar"><div id="timerBar"></div></div></div>
+        <div class="skill-list">
+          <button class="skill-btn" data-skill="Q" type="button"><span class="key">Q</span><span>遞結緣水</span></button>
+          <button class="skill-btn" data-skill="W" type="button"><span class="key">W</span><span>貼平安符</span></button>
+          <button class="skill-btn" data-skill="E" type="button"><span class="key">E</span><span>吹號鎮喧</span></button>
+          <button class="skill-btn" data-skill="R" type="button"><span class="key">R</span><span>劃界結界</span></button>
         </div>
-      </header>
-      <main class="game-layout">
-        <section class="hud-panel" aria-label="遊戲狀態">
-          <div class="score-box"><span>聖望聲譽</span><strong id="shengWangValue">0</strong></div>
-          <div class="score-box warm"><span>歡慶熱鬧度</span><strong id="festivalValue">0</strong></div>
-          <div class="score-box danger"><span>警方警戒度</span><strong id="policeValue">0</strong></div>
-          <div class="score-box bad"><span>民俗污名化</span><strong id="stigmaValue">0</strong></div>
-          <div class="timer-panel"><div class="label-row"><span>遶境倒數</span><strong id="timerValue">35.0s</strong></div><div class="progress-bar"><div id="timerBar"></div></div></div>
-          <div class="skill-list">
-            <button class="skill-btn" data-skill="Q" type="button"><span class="key">Q</span><span>遞結緣水</span></button>
-            <button class="skill-btn" data-skill="W" type="button"><span class="key">W</span><span>貼平安符</span></button>
-            <button class="skill-btn" data-skill="E" type="button"><span class="key">E</span><span>吹號鎮喧</span></button>
-            <button class="skill-btn" data-skill="R" type="button"><span class="key">R</span><span>劃界結界</span></button>
+        <div class="tips-box"><h3>執事任務</h3><p>用法器化解衝突，守住遶境秩序。警戒或污名值到 100，活動就會中斷。</p><p>鍵盤：WASD／方向鍵移動、QWER施法。手機：左下虛擬搖桿移動，技能按鈕施法。</p></div>
+        <div class="best-box"><span>個人最佳</span><strong id="bestScore">0</strong></div>
+      </section>
+      <section class="arena-panel" aria-label="3D 廟會遊戲場景">
+        <div id="gameCanvas" role="img" aria-label="可互動的 3D 廟會場景"></div>
+        <div class="scene-hint">拖曳旋轉 · 滾輪縮放</div>
+        <div id="startScreen" class="screen-overlay">
+          <div class="overlay-card start-card">
+            <div class="menu-mark">✦</div><p class="eyebrow">今晚的遶境，就交給你了</p>
+            <h2>The Cool Butler</h2>
+            <p class="story">執事阿文手持執事牌，穿梭廟埕與遶境隊伍之間。安撫情緒、化解推擠，讓熱鬧留下，爭執散去。</p>
+            <label class="difficulty-label" for="difficultySelect">挑戰難度</label>
+            <select id="difficultySelect"><option value="easy">平安場｜新手</option><option value="normal" selected>遶境場｜標準</option><option value="hard">���熱場｜困難</option></select>
+            <button id="startBtn" class="primary-btn start-btn" type="button">進入廟埕</button>
+            <div class="leaderboard"><h3>和平大使榜</h3><ol id="leaderboardList"><li>尚無紀錄，來拿下第一名吧！</li></ol></div>
+            <p class="start-note">首次點擊開始後，背景音樂與音效會啟用。</p>
           </div>
-          <div class="tips-box"><h3>執事任務</h3><p>使用法器化解衝突，守住遶境秩序。警戒或污名值達 100 就會中斷活動。</p><p>按 Q／W／E／R 施法，或點擊技能按鈕。可拖曳 3D 場景旋轉、滾輪縮放。</p></div>
-        </section>
-        <section class="arena-panel" aria-label="3D 廟會遊戲場景">
-          <div id="gameCanvas" role="img" aria-label="可互動的 3D 廟會場景"></div>
-          <div class="scene-hint">拖曳旋轉場景 · 滾輪縮放</div>
-          <div id="overlay" class="overlay hidden"><div class="overlay-card"><h2 id="overlayTitle">遶境結束</h2><p id="overlayText">你平息了多少衝突？</p><button id="shareBtn" class="primary-btn" type="button">複製 Threads 文案</button></div></div>
-        </section>
-      </main>
-      <p class="footnote">音效由 Web Audio API 即時合成；首次操作後即可播放。3D 場景使用 Three.js。</p>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-    <script src="game.js"></script>
-  </body>
+        </div>
+        <div id="overlay" class="overlay hidden"><div class="overlay-card"><p class="eyebrow">本場遶境紀錄</p><h2 id="overlayTitle">遶境結束</h2><p id="overlayText"></p><p id="recordMessage" class="record-message"></p><button id="shareBtn" class="primary-btn" type="button">複製 Threads 文案</button><button id="resultMenuBtn" class="secondary-btn" type="button">回主選單</button></div></div>
+        <div id="mobileControls" class="mobile-controls" aria-label="手機操作">
+          <div id="joystick" class="joystick" aria-label="移動搖桿"><div id="stick" class="stick"></div></div>
+          <div class="mobile-skill-hint">移動</div>
+        </div>
+      </section>
+    </main>
+    <p class="footnote">3D 場景使用 Three.js；鑼鼓節奏、法器音效與警笛由 Web Audio API 即時合成。</p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="game.js"></script>
+</body>
 </html>
