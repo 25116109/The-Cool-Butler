@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Cool Butler</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">廟會維安執事</div>
+          <h1>The Cool Butler</h1>
+        </div>
+        <button id="newGameBtn" class="primary-btn">重新開始</button>
+      </header>
+
+      <main class="game-layout">
+        <section class="hud-panel">
+          <div class="score-box">
+            <span>聖望聲譽</span>
+            <strong id="shengWangValue">0</strong>
+          </div>
+          <div class="score-box warm">
+            <span>歡慶熱鬧度</span>
+            <strong id="festivalValue">0</strong>
+          </div>
+          <div class="score-box danger">
+            <span>警方警戒度</span>
+            <strong id="policeValue">0</strong>
+          </div>
+          <div class="score-box bad">
+            <span>民俗污名化</span>
+            <strong id="stigmaValue">0</strong>
+          </div>
+
+          <div class="timer-panel">
+            <div class="label-row">
+              <span>遶境倒數</span>
+              <strong id="timerValue">35.0s</strong>
+            </div>
+            <div class="progress-bar">
+              <div id="timerBar"></div>
+            </div>
+          </div>
+
+          <div class="skill-list">
+            <button class="skill-btn" data-skill="Q">
+              <span class="key">Q</span>
+              <span>遞結緣水</span>
+            </button>
+            <button class="skill-btn" data-skill="W">
+              <span class="key">W</span>
+              <span>貼平安符</span>
+            </button>
+            <button class="skill-btn" data-skill="E">
+              <span class="key">E</span>
+              <span>吹號鎮喧</span>
+            </button>
+            <button class="skill-btn" data-skill="R">
+              <span class="key">R</span>
+              <span>劃界結界</span>
+            </button>
+          </div>
+
+          <div class="tips-box">
+            <h3>操作提示</h3>
+            <p>Q：單體降溫、W：重點鎮壓、E：範圍平息、R：結界護持</p>
+            <p>監控警方警戒與污名化，避免警笛與網路噩夢。</p>
+          </div>
+        </section>
+
+        <section class="arena-panel">
+          <canvas id="gameCanvas" width="960" height="620"></canvas>
+          <div id="overlay" class="overlay hidden">
+            <div class="overlay-card">
+              <h2 id="overlayTitle">遶境結束</h2>
+              <p id="overlayText">你平息了多少衝突？</p>
+              <button id="shareBtn" class="primary-btn">複製 Threads 文案</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>
